@@ -23,6 +23,6 @@ Node* Reverse(Node* head)
     prev = cur;
     cur = next;
   }
-  
+
   return prev;
 }
