@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "forward_list": "cpp",
+        "iostream": "cpp"
+    }
+}
