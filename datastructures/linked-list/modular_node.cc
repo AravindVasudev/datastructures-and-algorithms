@@ -1,8 +1,3 @@
-/**
- * Given a Linked List with even and odd numbers, create an algorithm for making
- * changes to list in such a way that all even numbers appear at the beginning
- **/
-
 #include <iostream>
 #include <vector>
 
@@ -37,36 +32,23 @@ std::string visualize(Node *head) {
     return visualized_list + "NULL";
 }
 
-Node* even_odd_reorder(Node *head) {
-    Node *odd = new Node;
-    Node *even = new Node;
-    Node *o = odd, *e = even;
-
+int modular_node(Node *head, int k) {
+    Node *ptr;
+    int i = 1;
+    if (!head) return -1;
     while (head) {
-        if (head->data & 1) {
-            odd->next = head;
-            odd = odd->next;
-        } else {
-            even->next = head;
-            even = even->next;
-        }
+        if (i++ % k == 0) ptr = head;
         head = head->next;
     }
 
-    Node *ptr = o;
-    even->next = o->next;
-    delete ptr;
-    odd->next = NULL;
-    ptr = e;
-    e = e->next;
-    delete ptr;
-
-    return e;
+    return ptr->data;
 }
 
 int main() {
-    std::vector<int> arr = {1, 2, 2, 3, 7, 6, 0, 1, 1, 5, 6, 4};
+    std::vector<int> arr = {2, 5, 6, 1, 9, 10, 45};
     Node *list = array_to_list(arr);
 
-    std::cout << visualize(list) << "\n" << visualize(even_odd_reorder(list)) << "\n";
+    std::cout << visualize(list) << "\n" << modular_node(list, 4) << "\n";
+
+    return 0;
 }
