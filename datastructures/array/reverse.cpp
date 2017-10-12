@@ -1,19 +1,22 @@
-#include<iostream>
-using namespace std;
+#include <iostream>
 
 int main() {
-	// get n
 	int n;
-	cin >> n;
+	std::cout << "Enter N: ";
+	std::cin >> n;
 
-	// init and read array in reverse
 	int arr[n];
-	for(int i = n - 1; i >= 0; i--) {
-		cin >> arr[i];
+	for (int i = 0; i < n; i++) std::cin >> arr[i];
+
+	int i = 0, j = n - 1, temp;
+	while (i < j) {
+		temp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = temp;
+		i++; j--;
 	}
 
-	// print array
-	for(int i = 0; i < n; i++) {
-		cout << arr[i] << " ";
-	}
+	for (i = 0; i < n; i++) std::cout << arr[i] << " ";
+
+	return 0;
 }
