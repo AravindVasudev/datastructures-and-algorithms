@@ -7,7 +7,7 @@ int largest_rectangle_histogram_inefficient(const std::vector<int>& arr) {
 }
 
 int largest_rectangle_histogram_efficient(const std::vector<int>& arr) {
-    
+
 }
 
 int main() {
@@ -20,10 +20,10 @@ int main() {
     }
 
     std::cout
-        << "Inefficient solution: " 
+        << "Inefficient solution: "
         << largest_rectangle_histogram_inefficient(arr)
         << std::endl
-        << "  Efficient solution: " 
+        << "  Efficient solution: "
         << largest_rectangle_histogram_efficient(arr)
         << std::endl;
 

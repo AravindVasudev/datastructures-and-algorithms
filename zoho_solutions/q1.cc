@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <set>
 
 int main() {
     int sides[4];
@@ -12,14 +13,16 @@ int main() {
         }
     }
 
-    if (sides[0] == sides[2] && sides[1] == sides[3]) {
-        if (sides[0] == sides[1]) {
+    std::set<int> sides_set{std::begin(sides), std::end(sides)};
+    switch (sides_set.size()) {
+        case 1:
             std::cout << "Square";
-        } else {
+            break;
+        case 2:
             std::cout << "Rectangle";
-        }
-    } else {
-        std::cout << "Neither";
+            break;
+        default:
+            std::cout << "Neither";
     }
 
     return 0;
