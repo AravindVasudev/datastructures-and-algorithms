@@ -49,7 +49,7 @@ int main() {
     Stack s;
 
     std::cout << "is_empty(): " << s.is_empty() << " is_full(): " << s.is_full() << "\n";
-    
+
     for (int i = 1; i < 11; i++) s.push(i);
     s.push(11);
     std::cout << "peek(): " << s.peek() << " pop(): " << s.pop() << "\n";
