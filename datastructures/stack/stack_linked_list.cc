@@ -5,11 +5,11 @@ struct Node {
     Node *next;
 };
 
-class Queue {
+class Stack {
    Node *head;
 
 public:
-    Queue() {
+    Stack() {
         head = NULL;
     }
 
@@ -37,16 +37,12 @@ public:
 };
 
 int main() {
-    Queue q;
+    Stack s;
 
-    q.enqueue(1);
-    q.enqueue(2);
-    q.enqueue(3);
-    q.enqueue(4);
-    q.enqueue(5);
-
-    std::cout << " is_empty(): " << q.is_empty() << std::endl;
-    std::cout << "front(): " << q.get_front() << " dequeue(): " << q.dequeue() << " dequeue(): " << q.dequeue();
+    std::cout << "is_empty(): " << s.is_empty() << "\n";
+ 
+    for (int i = 1; i < 11; i++) s.push(i);
+    std::cout << "peek(): " << s.peek() << " pop(): " << s.pop() << "\n";
 
     return 0;
 }
