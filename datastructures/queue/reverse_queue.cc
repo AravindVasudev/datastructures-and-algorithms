@@ -17,6 +17,15 @@ void reverse(std::queue<int>& q) {
     }
 }
 
+void reverse_recursive(std::queue<int>& q) {
+    if (q.empty()) return;
+
+    int temp = q.front();
+    q.pop();
+    reverse_recursive(q);
+    q.push(temp);
+}
+
 std::string visualize(std::queue<int> q) {
     std::stringstream os;
 
@@ -35,5 +44,9 @@ int main() {
     std::cout << visualize(q) << std::endl;
 
     reverse(q);
-    std::cout << visualize(q);
+    std::cout << visualize(q) << std::endl;
+
+
+    reverse_recursive(q);
+    std::cout << visualize(q) << std::endl;
 }
