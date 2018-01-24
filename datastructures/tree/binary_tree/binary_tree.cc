@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <stack>
 
 struct Node {
     int data;
@@ -45,6 +46,95 @@ void levelorder(Node *root) {
     }
 }
 
+void inorder_nonrecursive(Node *root) {
+    if (!root) return;
+
+    Node *cur = root;
+    std::stack<Node*> s;
+    bool done = false;
+
+    while (!done) {
+        if (cur) {
+            s.push(cur);
+            cur = cur->left;
+        } else {
+            if (!s.empty()) {
+                cur = s.top();
+                s.pop();
+
+                std::cout << cur->data;
+                cur = cur->right;
+            } else {
+                done = true;
+            }
+        }
+    }
+}
+
+void preorder_nonrecursive(Node *root) {
+    if (!root) return;
+
+    Node *cur = root;
+    std::stack<Node*> s;
+    bool done = false;
+
+    while (!done) {
+        if (cur) {
+            std::cout << cur->data;
+
+            s.push(cur);
+            cur = cur->left;
+        } else {
+            if (!s.empty()) {
+                cur = s.top()->right;
+                s.pop();
+            } else {
+                done = true;
+            }
+        }
+    }
+}
+
+void preorder_nonrecursive_2(Node *root) {
+    if (!root) return;
+
+    std::stack<Node*> s;
+    s.push(root);
+
+    while(!s.empty()) {
+        Node *temp = s.top();
+        s.pop();
+
+        std::cout << temp->data;
+        if (temp->right) s.push(temp->right);
+        if (temp->left)  s.push(temp->left);
+    }
+}
+
+void postorder_nonrecursive(Node *root) {
+    if (!root) return;
+
+    Node *cur = root;
+    std::stack<Node*> s;
+    std::stack<int> op;
+
+    s.push(root);
+    while (!s.empty()) {
+        Node *cur = s.top();
+        s.pop();
+
+        if (cur->left)  s.push(cur->left);
+        if (cur->right) s.push(cur->right);
+
+        op.push(cur->data);
+    }
+
+    while (!op.empty()) {
+        std::cout << op.top();
+        op.pop();
+    }
+}
+
 int main() {
     Node *root = new Node{1, NULL, NULL};
 
@@ -61,6 +151,14 @@ int main() {
     postorder(root);
     std::cout << "\n";
     levelorder(root);
+    std::cout << "\n";
+    inorder_nonrecursive(root);
+    std::cout << "\n";
+    preorder_nonrecursive(root);
+    std::cout << "\n";
+    preorder_nonrecursive_2(root);
+    std::cout << "\n";
+    postorder_nonrecursive(root);
 
 
     return 0;

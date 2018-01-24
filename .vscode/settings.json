@@ -59,7 +59,9 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "bitset": "cpp",
+        "valarray": "cpp"
     },
     "python.linting.pylintEnabled": false
 }
