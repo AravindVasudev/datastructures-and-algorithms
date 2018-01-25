@@ -5,6 +5,11 @@
 struct Node {
     int data;
     Node *left, *right;
+
+    Node(int data) {
+        this->data = data;
+        left = right = NULL;
+    }
 };
 
 void preorder(Node *root) {
@@ -135,14 +140,40 @@ void postorder_nonrecursive(Node *root) {
     }
 }
 
+void postorder_nonrecursive_2(Node *root) {
+    if (!root) return;
+
+    std::stack<Node*> s;
+
+    do {
+
+        while (root) {
+            if (root->right) s.push(root->right);
+            s.push(root);
+            root = root->left;
+        }
+
+        root = s.top(); s.pop();
+        if (root->right && s.top() == root->right) {
+            s.pop();
+            s.push(root);
+            root = root->right;
+        } else {
+            std::cout << root->data;
+            root = NULL;
+        }
+    } while (!s.empty());
+}
+
+
 int main() {
-    Node *root = new Node{1, NULL, NULL};
+    Node *root = new Node(1);
 
-    root->left  = new Node{2, NULL, NULL};
-    root->right = new Node{3, NULL, NULL};
+    root->left  = new Node(2);
+    root->right = new Node(3);
 
-    root->left->left  = new Node{4, NULL, NULL};
-    root->left->right = new Node{5, NULL, NULL};
+    root->left->left  = new Node(4);
+    root->left->right = new Node(5);
 
     preorder(root);
     std::cout << "\n";
@@ -159,6 +190,8 @@ int main() {
     preorder_nonrecursive_2(root);
     std::cout << "\n";
     postorder_nonrecursive(root);
+    std::cout << "\n";
+    postorder_nonrecursive_2(root);
 
 
     return 0;
