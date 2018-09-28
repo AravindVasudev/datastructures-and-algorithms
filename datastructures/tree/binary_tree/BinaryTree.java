@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 class TreeNode<T> {
     T data;
@@ -164,6 +161,29 @@ class TreeNode<T> {
 
         return isMirror(tree1.left, tree2.right) && isMirror(tree1.right, tree2.left);
     }
+
+    public TreeNode<T> lca(TreeNode<T>  node1, TreeNode<T> node2) {
+        return lca(this, node1, node2);
+    }
+
+    private TreeNode<T> lca(TreeNode<T> tree, TreeNode<T>  node1, TreeNode<T> node2) {
+        if (tree == null) {
+            return null;
+        }
+
+        if (tree == node1 || tree == node2) {
+            return tree;
+        }
+
+        TreeNode<T> left = lca(tree.left, node1, node2);
+        TreeNode<T> right = lca(tree.right, node1, node2);
+
+        if (left != null && right != null) {
+            return tree;
+        }
+
+        return left != null ? left : right;
+    }
 }
 
 public class BinaryTree {
@@ -210,6 +230,27 @@ public class BinaryTree {
 
     public static Integer treeSum(TreeNode<Integer> tree) {
         return tree == null ? 0 : treeSum(tree.left) + treeSum(tree.right) + tree.data;
+    }
+
+    public static TreeNode<Integer> constructTreeUsingInorderAndPreorder(List<Integer> preorder, List<Integer> inorder) {
+        if (preorder.isEmpty()) {
+            return null;
+        }
+
+        final int rootInorderIndex = inorder.indexOf(preorder.get(0));
+
+        TreeNode<Integer> root = new TreeNode<>(preorder.get(0));
+
+        List<Integer> leftInorder = inorder.subList(0, rootInorderIndex);
+        List<Integer> leftPreorder = preorder.subList(1, leftInorder.size() + 1);
+
+        List<Integer> rightInorder = inorder.subList(rootInorderIndex + 1, inorder.size());
+        List<Integer> rightPreorder = preorder.subList(leftInorder.size() + 1, leftInorder.size() + 1 + rightInorder.size());
+
+        root.left = constructTreeUsingInorderAndPreorder(leftPreorder, leftInorder);
+        root.right = constructTreeUsingInorderAndPreorder(rightPreorder, rightInorder);
+
+        return root;
     }
 
     public static void main(String[] args) {
@@ -282,5 +323,14 @@ public class BinaryTree {
 
         System.out.println("isMirror(tree, tree): " + tree.isMirror(tree));
         System.out.println("isMirror(tree, duplicate): " + tree.isMirror(duplicateTree));
+
+        System.out.println("lca(5, 4): " + tree.lca(tree.left.left.left, tree.left.right).data);
+        System.out.println("lca(5, 7): " + tree.lca(tree.left.left.left, tree.right.left).data);
+
+        List<Integer> newTreeInorder = Arrays.asList(4, 2, 5, 1, 6, 3, 7);
+        List<Integer> newTreePreorder = Arrays.asList(1, 2, 4, 5, 3, 6, 7);
+        TreeNode<Integer> newTree = constructTreeUsingInorderAndPreorder(newTreePreorder, newTreeInorder);
+
+        System.out.println("newTree: " + newTree);
     }
 }
