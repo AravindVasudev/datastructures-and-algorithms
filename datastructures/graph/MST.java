@@ -112,6 +112,27 @@ public class MST {
         return result;
     }
 
+    List<Edge> kruskalMSTUsingSet() {
+        List<Edge> result = new ArrayList<>(vertices.size());
+        Set<Integer> visited = new HashSet<>(vertices.size());
+
+        Collections.sort(edges);
+        for (int i = 0; result.size() < vertices.size() - 1; i++) {
+            final Edge curEdge = edges.get(i);
+
+            if (visited.contains(curEdge.source.id) && visited.contains(curEdge.dest.id)) {
+                continue;
+            }
+
+            result.add(curEdge);
+
+            visited.add(curEdge.source.id);
+            visited.add(curEdge.dest.id);
+        }
+
+        return result;
+    }
+
     private class PrimNode implements Comparable<PrimNode> {
         Node node;
         int minPathWeight;
@@ -212,6 +233,7 @@ public class MST {
             .addEdge(2, 3, 4);
 
         System.out.println("Kruskal: " + graph.kruskalMST());
+        System.out.println("Kruskal without DisjointSets: " + graph.kruskalMSTUsingSet());
         System.out.println("Prim: " + graph.primMST());
     }
 }
