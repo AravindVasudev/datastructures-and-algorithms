@@ -1,6 +1,25 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class KruskalMST {
+    final int V, E;
+    Edge[] edges;
+
+    private class Edge implements Comparable<Edge> {
+        int src, dest, weight;
+
+        @Override
+        public int compareTo(Edge edge) {
+            return weight - edge.weight;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%d <--| %d |--> %d", src, weight, dest);
+        }
+    }
+
     private class DisjointSets {
         int[] parent;
 
@@ -31,81 +50,28 @@ public class KruskalMST {
         }
     }
 
-    private class Node {
-        Integer id;
-        List<Edge> adjacency = new LinkedList<>();
+    public KruskalMST(int V, int E) {
+        this.V = V;
+        this.E = E;
 
-        Node(Integer id) {
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return id.toString();
+        edges = new Edge[E];
+        for (int i = 0; i < E; i++) {
+            edges[i] = new Edge();
         }
     }
 
-    private class Edge implements Comparable<Edge> {
-        Node source, dest;
-        int weight;
+    public List<Edge> kruskalMST() {
+        List<Edge> result = new ArrayList<>(V);
+        DisjointSets ds = new DisjointSets(V);
 
-        Edge(Node source, Node dest, int weight) {
-            this.source = source;
-            this.dest = dest;
-            this.weight = weight;
-        }
+        Arrays.sort(edges);
+        for (int i = 0; result.size() < V - 1; i++) {
+            final Edge curEdge = edges[i];
 
-        @Override
-        public int compareTo(Edge edge) {
-            return weight - edge.weight;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s <--| %d |--> %s", source, weight, dest);
-        }
-    }
-
-    Map<Integer, Node> vertices = new HashMap<>();
-    List<Edge> edges = new ArrayList<>();
-
-    KruskalMST addVertex(int id) {
-        vertices.put(id, new Node(id));
-
-        return this;
-    }
-    
-    KruskalMST addEdge(int source, int dest, int weight) {
-        return addEdge(getVertex(source), getVertex(dest), weight);
-    }
-
-    KruskalMST addEdge(Node source, Node dest, int weight) {
-        Edge edge = new Edge(source, dest, weight);
-
-        source.adjacency.add(edge);
-        dest.adjacency.add(edge);
-
-        edges.add(edge);
-
-        return this;
-    }
-
-    Node getVertex(int id) {
-        return vertices.get(id);
-    }
-
-    List<Edge> kruskalMST() {
-        List<Edge> result = new ArrayList<>(vertices.size());
-        DisjointSets ds = new DisjointSets(vertices.size());
-
-        Collections.sort(edges);
-        for (int i = 0; result.size() < vertices.size() - 1; i++) {
-            final Edge curEdge = edges.get(i);
-
-            if (!ds.find(curEdge.source.id, curEdge.dest.id)) {
+            if (!ds.find(curEdge.src, curEdge.dest)) {
                 result.add(curEdge);
 
-                ds.union(curEdge.source.id, curEdge.dest.id);
+                ds.union(curEdge.src, curEdge.dest);
             }
         }
 
@@ -113,21 +79,28 @@ public class KruskalMST {
     }
 
     public static void main(String[] args) {
-        KruskalMST graph = new KruskalMST();
+        KruskalMST graph = new KruskalMST(4, 5);
 
-        graph
-            .addVertex(0)
-            .addVertex(1)
-            .addVertex(2)
-            .addVertex(3);
+        graph.edges[0].src = 0;
+        graph.edges[0].dest = 1;
+        graph.edges[0].weight = 10;
 
-        graph
-            .addEdge(0, 1, 10)
-            .addEdge(0, 2, 6)
-            .addEdge(0, 3, 5)
-            .addEdge(1, 3, 15)
-            .addEdge(2, 3, 4);
+        graph.edges[1].src = 0;
+        graph.edges[1].dest = 2;
+        graph.edges[1].weight = 6;
 
-            System.out.println(graph.kruskalMST());
+        graph.edges[2].src = 0;
+        graph.edges[2].dest = 3;
+        graph.edges[2].weight = 5;
+
+        graph.edges[3].src = 1;
+        graph.edges[3].dest = 3;
+        graph.edges[3].weight = 15;
+
+        graph.edges[4].src = 2;
+        graph.edges[4].dest = 3;
+        graph.edges[4].weight = 4;
+
+        System.out.println(graph.kruskalMST());
     }
 }
