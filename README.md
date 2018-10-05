@@ -1,2 +1,2 @@
 # Datastructures and Algorithms
-Collection of common datastructure implementation and problem solutions.
+Collection of common datastructure implementations and problem solutions.
