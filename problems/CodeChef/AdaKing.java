@@ -4,6 +4,7 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.awt.Point;
 
+// https://www.codechef.com/problems/ADAKNG
 class AdaKing {
     public static void main(String[] args) {
         Scanner kb = new Scanner(System.in);
