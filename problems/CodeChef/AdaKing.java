@@ -14,41 +14,53 @@ class AdaKing {
             Integer c = kb.nextInt();
             int k = kb.nextInt();
 
-            HashSet<Point> visited = new HashSet<>();
-            Queue<Point> q = new LinkedList<>();
-            int curR, curC, count = 0;
+            System.out.println(depthLimitedBFS(r, c, k));
+            System.out.println(computeAsRectangle(r, c, k));
+        }
+    }
 
-            q.add(new Point(r, c));
-            visited.add(new Point(r, c));
-            while (!q.isEmpty()) {
-                int levelSize = q.size();
+    private static int computeAsRectangle(int r, int c, int k) {
+        int dx = Math.min(c + k, 8) - Math.max(c -  k, 1) + 1;
+        int dy = Math.min(r + k, 8) - Math.max(r - k, 1) + 1;
 
-                while (levelSize-- > 0) {
-                    Point cur = q.poll();
-                    count++;
+        return dx * dy;
+    }
 
-                    if (k == 0) continue;
+    private static int depthLimitedBFS(int r, int c, int k) {
+        HashSet<Point> visited = new HashSet<>();
+        Queue<Point> q = new LinkedList<>();
+        int curR, curC, count = 0;
 
-                    for (int i = -1; i <= 1; i++) {
-                        for (int j = -1; j <= 1; j++) {
-                            if (i == 0 && j == 0) continue;
+        q.add(new Point(r, c));
+        visited.add(new Point(r, c));
+        while (!q.isEmpty()) {
+            int levelSize = q.size();
 
-                            Point next = new Point( cur.x + i, cur.y + j);
+            while (levelSize-- > 0) {
+                Point cur = q.poll();
+                count++;
 
-                            if (next.x < 1 || next.x > 8 || next.y < 1 || next.y > 8 || visited.contains(next)) {
-                                continue;
-                            }
+                if (k == 0) continue;
 
-                            q.add(next);
-                            visited.add(next);
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (i == 0 && j == 0) continue;
+
+                        Point next = new Point( cur.x + i, cur.y + j);
+
+                        if (next.x < 1 || next.x > 8 || next.y < 1 || next.y > 8 || visited.contains(next)) {
+                            continue;
                         }
+
+                        q.add(next);
+                        visited.add(next);
                     }
                 }
-
-                k--;
             }
 
-            System.out.println(count);
+            k--;
         }
+
+        return count;
     }
 }
