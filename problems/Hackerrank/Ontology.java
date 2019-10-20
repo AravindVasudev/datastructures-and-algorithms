@@ -22,7 +22,7 @@ public class Ontology {
             while (!treeNodes.peek().equals(")")) {
                 newNode.desendents.add(generateTree(treeNodes, topicMap));
             }
-            
+
             treeNodes.pop(); // remove )
         }
 
@@ -57,7 +57,7 @@ public class Ontology {
         for (int i = nodesStr.length - 1; i >= 0; i--) {
             nodeStack.push(nodesStr[i]);
         }
-        
+
         Map<String, Topic> topicMap = new HashMap<>();
         Topic tree = generateTree(nodeStack, topicMap);
 

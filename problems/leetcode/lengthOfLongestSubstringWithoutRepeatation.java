@@ -9,10 +9,10 @@ class Solution {
                 seen.add(s.charAt(j));
                 cur++;
             }
-            
+
             longest = longest > cur ? longest : cur;
         }
-        
+
         return longest;
     }
 }
