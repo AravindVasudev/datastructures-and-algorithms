@@ -18,3 +18,19 @@ class Solution:
                                 self.solve(dungeon, cache, row, col + 1) - dungeon[row][col]))
 
         return cache[row][col]
+
+#########################
+# Top Down
+#########################
+class Solution:
+    def calculateMinimumHP(self, dungeon):
+        M, N = len(dungeon), len(dungeon[0])
+        cache = [[float('inf') for _ in range(N + 1)] for _ in range(M + 1)]
+
+        cache[M - 1][N], cache[M][N - 1] = 1, 1
+        for i in range(M - 1, -1, -1):
+            for j in range(N - 1, -1, -1):
+                cache[i][j] = max(1, min(cache[i + 1][j] - dungeon[i][j],
+                                         cache[i][j + 1] - dungeon[i][j]))
+
+        return cache[0][0]
