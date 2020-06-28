@@ -1,4 +1,3 @@
-# https://leetcode.com/problems/letter-combinations-of-a-phone-number/
 class Solution:
     def letterCombinations(self, digits: str) -> List[str]:
         numToChar = {
@@ -12,13 +11,13 @@ class Solution:
             '9': ['w', 'x', 'y', 'z']
         }
         
-        return self.generateCombinations(digits, 0, set(), numToChar)
+        return self.generateCombinations(digits, 0, numToChar)
     
-    def generateCombinations(self, digits, cur, generated, numToChar):
+    def generateCombinations(self, digits, cur, numToChar):
         if cur >= len(digits):
             return []
         
-        nextList = self.generateCombinations(digits, cur + 1, generated, numToChar)
+        nextList = self.generateCombinations(digits, cur + 1, numToChar)
         
         curList = []
         for char in numToChar[digits[cur]]:
