@@ -20,8 +20,10 @@ interview.
   - Hashtable. [source](https://docs.python.org/3/faq/design.html#how-are-dictionaries-implemented-in-cpython).
   - Collision Resolution: Open Addressing (Quadratic Probing). [source](https://www.laurentluce.com/posts/python-dictionary-implementation/)
   - [Documentation](https://docs.python.org/3/library/stdtypes.html#dict).
+- Python 3: collections.defaultdict
+  - Same as `dict` but when lookup fails, it creates the element with the default value.
 
-The complexities are the same for all three.
+The complexities are the same for all four.
 | Operation | Average Case | Amortized Case |
 | :-------: | :----------: | :------------: |
 | Insertion |     O(1)     |      O(N)      |
@@ -40,6 +42,13 @@ The complexities are the same for all three.
 
 The complexities are same as HashTable.
 
+#### Sorted Map
+- Java: TreeMap
+  - Red-Black Tree.
+  - Insertion & Retrieval: O(log N).
+  - [Documentation](https://docs.oracle.com/javase/8/docs/api/java/util/TreeMap.html).
+  
+Python 3 does not have sorted map implementation.
 
 ## References
 - [Python Time Complexities](https://wiki.python.org/moin/TimeComplexity).
