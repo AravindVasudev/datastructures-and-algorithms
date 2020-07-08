@@ -4,18 +4,12 @@ from collections import OrderedDict
 class Solution:
     def firstUniqChar(self, s: str) -> int:
         charMap = OrderedDict()
-        positionMap = dict()
         
         for i, char in enumerate(s):
-            if char in positionMap:
-                charMap[char] += 1
-                continue
-                
-            positionMap[char] = i
-            charMap[char] = 1
+            charMap[char] = -1 if char in charMap else i
         
-        for char, occurence in charMap.items():
-            if occurence is 1:
-                return positionMap[char]
+        for char, index in charMap.items():
+            if index != -1:
+                return index
             
         return -1
