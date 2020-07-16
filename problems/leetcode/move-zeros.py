@@ -11,3 +11,14 @@ class Solution:
         while modifiedIndex < size:
             nums[modifiedIndex] = 0
             modifiedIndex += 1
+ 
+############# ALTERNATE OPTIMAL SOLUTION #############
+
+class Solution:
+    def moveZeroes(self, nums: List[int]) -> None:
+        modifiedIndex = 0
+        
+        for i, cur in enumerate(nums):
+            if cur != 0:
+                nums[modifiedIndex], nums[i] = cur, nums[modifiedIndex]
+                modifiedIndex += 1
