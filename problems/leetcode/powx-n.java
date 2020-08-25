@@ -14,10 +14,6 @@ class Solution {
             return 1;
         }
         
-        if (n == 1) {
-            return x;
-        }
-        
         double half = myPowHelper(x, n / 2);
         double xPowerN = 1;
         if (n % 2 != 0) {
