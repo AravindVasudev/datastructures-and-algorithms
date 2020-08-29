@@ -34,3 +34,7 @@
 
 # Mac OS
 .DS_Store
+
+# Compiled files
+*.class
+*.pyc
