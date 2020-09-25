@@ -17,6 +17,9 @@ TBD
 ## Divide & Conquer
 TBD
 
+## Back pointer on an array to reuse memory
+TBD
+
 ## Simplified datastructures
 ### Integer as set
 ### Integer[] as set where each int is broken down into bits
