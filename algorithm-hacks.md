@@ -43,3 +43,6 @@ https://www.geeksforgeeks.org/space-optimization-using-bit-manipulations/?ref=rp
 
 ## Finding out desired complexity from the input bounds
 TBD
+
+## Segment Trees
+- https://leetcode.com/articles/a-recursive-approach-to-segment-trees-range-sum-queries-lazy-propagation/
