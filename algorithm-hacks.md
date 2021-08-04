@@ -1,6 +1,7 @@
 # Algorithmic Hacks
 ## Two Pointer Technique
-TBD
+- https://leetcode.com/articles/two-pointer-technique/
+- https://algodaily.com/lessons/using-the-two-pointer-technique
 
 ## Sliding Window Technique
 TBD
