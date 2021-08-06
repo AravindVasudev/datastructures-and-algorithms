@@ -4,7 +4,7 @@
 - https://algodaily.com/lessons/using-the-two-pointer-technique
 
 ## Sliding Window Technique
-TBD
+- https://zengruiwang.medium.com/sliding-window-technique-360d840d5740
 
 ## Prefix/Suffix Sum
 TBD
