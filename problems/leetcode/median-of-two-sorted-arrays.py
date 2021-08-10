@@ -15,27 +15,30 @@ class Solution:
     def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
         if len(nums1) > len(nums2):
             return self.findMedianSortedArrays(nums2, nums1)
+
+        total = len(nums1) + len(nums2)
+        mid = (total + 1) // 2 # +1 to ensure the mid is ceil
         
-        low, high, mid = 0, len(nums1), (len(nums1) + len(nums2) + 1) // 2
+        low, high = 0, len(nums1)
         while low <= high:
-            part1 = (low + high) // 2
-            part2 = mid - part1
+            nums1Divider = (low + high) // 2
+            nums2Divider = mid - nums1Divider
             
-            left1 = float('-inf') if part1 == 0 else nums1[part1 - 1]
-            right1 = float('inf') if part1 == len(nums1) else nums1[part1]
+            left1 = float("-inf") if nums1Divider == 0 else nums1[nums1Divider - 1]
+            right1 = float("inf") if nums1Divider == len(nums1) else nums1[nums1Divider]
             
-            left2 = float('-inf') if part2 == 0 else nums2[part2 - 1]
-            right2 = float('inf') if part2 == len(nums2) else nums2[part2]
+            left2 = float("-inf") if nums2Divider == 0 else nums2[nums2Divider - 1]
+            right2 = float("inf") if nums2Divider == len(nums2) else nums2[nums2Divider]
             
             if left1 <= right2 and left2 <= right1:
-                if (len(nums1) + len(nums2)) % 2 == 0:
+                if total % 2 == 0:
                     return (max(left1, left2) + min(right1, right2)) / 2
                 else:
                     return max(left1, left2)
-                
+            
             if left1 > right2:
-                high = part1 - 1
+                high = nums1Divider - 1
             else:
-                low = part1 + 1
+                low = nums1Divider + 1
                 
-        return -1
+        raise Exception("Invalid Input")
