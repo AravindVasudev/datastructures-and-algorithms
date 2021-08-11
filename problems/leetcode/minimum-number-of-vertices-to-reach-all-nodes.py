@@ -27,3 +27,17 @@ class Solution:
         for connection in graph[node]:
             self.dfs(graph, connection, visited, result)
 
+# Solution 2: Just return nodes with no in-degree
+class Solution:
+    def findSmallestSetOfVertices(self, n: int, edges: List[List[int]]) -> List[int]:
+        result = []
+        inDegree = [False] * n
+        
+        for edge in edges:
+            inDegree[edge[1]] = True
+            
+        for node, hasInDegree in enumerate(inDegree):
+            if not hasInDegree:
+                result.append(node)
+                
+        return result
