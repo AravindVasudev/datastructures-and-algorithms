@@ -28,9 +28,8 @@ class BTreeNode:
     leaf: bool = True
 
     def __str__(self) -> str:
-        return f"keys: {self.keys} leaf: {self.leaf} " + \
-            f"number of children: {len(self.c)}"
-
+        return f"[keys: {self.keys} leaf: {self.leaf} child: {len(self.c)}]\n" \
+            + "\n".join([str(child) for child in self.c])
 
 class BTree:
     """
@@ -41,8 +40,8 @@ class BTree:
         Initializes B-Tree.
 
         :param t: Branching factor. For every node,
-            t <= number of child < 2t
-            t - 1 <= number of keys < 2t - 1
+            t <= number of child <= 2t
+            t - 1 <= number of keys <= 2t - 1
 
         """
         self.root = BTreeNode()
@@ -59,12 +58,12 @@ class BTree:
         """
 
         # Default value
-        # if node is None:
-        #     node = self.root
+        if bNode is None:
+            bNode = self.root
 
         # Linear search
         # TODO: Test out binary search here.
-        i: int = 1
+        i: int = 0
         while i < len(bNode.keys) and x > bNode.keys[i].key:
             i += 1
 
@@ -88,9 +87,8 @@ class BTree:
             self.root = s
 
             self._splitChild(self.root, 0)
-            self._insertNonFull(self.root, node)
-        else:
-            self._insertNonFull(self.root, node)
+
+        self._insertNonFull(self.root, node)
 
     def _splitChild(self, bNode: BTreeNode, i: int) -> None:
         """
@@ -106,11 +104,11 @@ class BTree:
         y = bNode.c[i]
         z = BTreeNode(leaf=y.leaf)
 
-        bNode.c.insert(i+1, z)
-        bNode.keys.insert(i, y.keys[self.t])
+        bNode.keys.insert(i, y.keys[self.t - 1])
+        bNode.c.insert(i + 1, z)
 
-        z.keys = y.keys[(self.t + 1):]
-        y.keys = y.keys[:self.t]
+        z.keys = y.keys[self.t:]
+        y.keys = y.keys[:self.t - 1]
 
         if not y.leaf:
             z.c = y.c[self.t:]
@@ -129,7 +127,7 @@ class BTree:
 
         i = len(bNode.keys) - 1
         if bNode.leaf:
-            bNode.keys.append(Node(None, None))
+            bNode.keys.append(None)
             while i >= 0 and node.key < bNode.keys[i].key:
                 bNode.keys[i+1] = bNode.keys[i]
                 i -= 1
@@ -151,8 +149,7 @@ class BTree:
             self._insertNonFull(bNode.c[i], node)
 
     def __str__(self) -> str:
-        return str(self.root) + "\n" + \
-            "\n".join([str(child) for child in self.root.c])
+        return str(self.root)
 
 
 if __name__ == "__main__":
@@ -170,7 +167,7 @@ if __name__ == "__main__":
 
     # Search
     print("=== Search Queries ===")
-    # print("Search(7):", dataStore.search(7, dataStore.root))
-    print("Search(5):", dataStore.search(5, dataStore.root))
-    # print("Search(1):", dataStore.search(1, dataStore.root))
-    # print("Search(11):", dataStore.search(11, dataStore.root))
+    print("Search(7):", dataStore.search(7))
+    print("Search(5):", dataStore.search(5))
+    print("Search(1):", dataStore.search(1))
+    print("Search(11):", dataStore.search(11))
