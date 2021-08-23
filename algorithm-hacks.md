@@ -49,3 +49,4 @@ TBD
 - https://leetcode.com/articles/a-recursive-approach-to-segment-trees-range-sum-queries-lazy-propagation/
 
 ## Bidirectional BFS
+- https://iq.opengenus.org/bidirectional-search/
