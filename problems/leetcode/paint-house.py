@@ -28,3 +28,27 @@ class Solution:
 
         memo[index][prevPick] = minimum
         return memo[index][prevPick]
+
+# Top Down
+class Solution:
+    """
+    @param costs: n x 3 cost matrix
+    @return: An integer, the minimum cost to paint all houses
+    """
+    def minCost(self, costs):
+        if len(costs) == 0:
+            return 0
+
+        N = len(costs[0])
+        dp = [[0] * N for _ in range(len(costs) + 1)]
+
+        for house in range(1, len(costs) + 1):
+            for color in range(N):
+                prevMin = float('inf')
+                for prevColor in range(N):
+                    if prevColor != color:
+                        prevMin = min(prevMin, dp[house - 1][prevColor])
+
+                dp[house][color] += costs[house - 1][color] + prevMin
+        
+        return min(dp[-1])
