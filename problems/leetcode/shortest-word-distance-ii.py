@@ -11,11 +11,15 @@ class WordDistance:
     def shortest(self, word1: str, word2: str) -> int:
         wordList1 = self.wordDict[word1]
         wordList2 = self.wordDict[word2]
-
+        
         minDistance = float('inf')
-        for pos1 in wordList1:   
-            for pos2 in wordList2:
-                minDistance = min(minDistance, abs(pos1 - pos2))
+        wPtr1, wPtr2 = 0, 0
+        while wPtr1 < len(wordList1) and wPtr2 < len(wordList2):
+            minDistance = min(minDistance, abs(wordList1[wPtr1] - wordList2[wPtr2]))
+            if wordList1[wPtr1] < wordList2[wPtr2]:
+                wPtr1 += 1
+            else:
+                wPtr2 += 1
                 
         return minDistance
         
