@@ -10,3 +10,4 @@ Collection of common datastructure implementations and problem solutions.
 - https://www.geeksforgeeks.org/prefix-sum-array-implementation-applications-competitive-programming/
 - https://leetcode.com/problems/minimum-window-substring/discuss/26808/Here-is-a-10-line-template-that-can-solve-most-'substring'-problems
 - https://www.growingwiththeweb.com/data-structures/binary-heap/build-heap-proof/
+- https://www.topcoder.com/thrive/articles/Dynamic%20Programming:%20From%20Novice%20to%20Advanced
