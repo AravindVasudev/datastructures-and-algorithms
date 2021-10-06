@@ -26,6 +26,8 @@ TBD
 ### Integer[] as set where each int is broken down into bits
 https://www.geeksforgeeks.org/space-optimization-using-bit-manipulations/?ref=rp
 ### boolean[] as set
+### Array index as set
+https://leetcode.com/problems/find-all-duplicates-in-an-array/solution/
 ### int[] as map
 ### Array as stack
 ### Array as queue
