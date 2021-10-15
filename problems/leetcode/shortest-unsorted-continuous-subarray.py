@@ -21,7 +21,7 @@ class Solution:
         left, right = 0, len(nums) - 1
         
         # Find the first non-ascending index
-        while left < len(nums) - 1 and nums[left] < nums[left + 1]:
+        while left < len(nums) - 1 and nums[left] <= nums[left + 1]:
             left += 1
             
         # Find the first non-descending index from the last
