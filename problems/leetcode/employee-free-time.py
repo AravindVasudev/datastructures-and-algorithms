@@ -58,3 +58,41 @@ class Solution:
         return combined
         
 # Efficient 2 (Priority Queue): O(N log K)
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    slots: List['Interval']
+    index: int = 0
+    
+    def __lt__(self, other: 'Interval'):
+        return self.getCurSlot().start < other.getCurSlot().start
+    
+    def getCurSlot(self):
+        return self.slots[self.index]
+
+    
+class Solution:
+    def employeeFreeTime(self, schedule: '[[Interval]]') -> '[Interval]':
+        heap = []
+
+        for person in schedule:
+            heapq.heappush(heap, Person(person))
+        
+        free = []
+        prevEnd = heap[0].slots[0].end
+        
+        while heap:
+            curPerson = heapq.heappop(heap)
+            curSlot = curPerson.getCurSlot()
+            
+            if prevEnd < curSlot.start:
+                free.append(Interval(prevEnd, curSlot.start))
+            
+            prevEnd = max(prevEnd, curSlot.end)
+            
+            if len(curPerson.slots) > curPerson.index + 1:
+                curPerson.index += 1
+                heapq.heappush(heap, curPerson)
+                
+        return free
