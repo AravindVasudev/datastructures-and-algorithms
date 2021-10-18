@@ -1,4 +1,18 @@
-# https://leetcode.com/problems/minimum-path-cost-in-a-hidden-grid/
+# """
+# This is GridMaster's API interface.
+# You should not implement it, or speculate about its implementation
+# """
+#class GridMaster(object):
+#    def canMove(self, direction: str) -> bool:
+#        
+#
+#    def move(self, direction: str) -> int:
+#        
+#
+#    def isTarget(self) -> None:
+#        
+#
+
 # Directions
 DIRECTIONS = {
     "U": (-1, 0),
@@ -14,7 +28,7 @@ OPPOSITE_DIRECTION = {
     "R": "L"
 }
 
-N = 1000 # Dimension (N x N)
+N = 200 # Dimension (N x N)
 
 UNEXPLORED = -1
 BLOCKED = -2
@@ -22,7 +36,7 @@ BLOCKED = -2
 class Solution(object):
     def findShortestPath(self, master: 'GridMaster') -> int:
         
-        startX = startY = N // 2 # Start from the middle
+        startX = startY = N // 2 - 1 # Start from the middle
         grid = [[UNEXPLORED] * N for _ in range(N)]
         grid[startX][startY] = 0
         
@@ -93,3 +107,4 @@ class Solution(object):
                     heapq.heappush(pqueue, (cost + grid[nextX][nextY], nextX, nextY))
                     
         return -1
+                    
