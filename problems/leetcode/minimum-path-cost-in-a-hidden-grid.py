@@ -1,18 +1,4 @@
-# """
-# This is GridMaster's API interface.
-# You should not implement it, or speculate about its implementation
-# """
-#class GridMaster(object):
-#    def canMove(self, direction: str) -> bool:
-#        
-#
-#    def move(self, direction: str) -> int:
-#        
-#
-#    def isTarget(self) -> None:
-#        
-#
-
+# https://leetcode.com/problems/minimum-path-cost-in-a-hidden-grid/
 # Directions
 DIRECTIONS = {
     "U": (-1, 0),
