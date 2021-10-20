@@ -12,3 +12,4 @@ Collection of common datastructure implementations and problem solutions.
 - https://www.growingwiththeweb.com/data-structures/binary-heap/build-heap-proof/
 - https://www.topcoder.com/thrive/articles/Dynamic%20Programming:%20From%20Novice%20to%20Advanced
 - https://leetcode.com/problems/sort-an-array/discuss/277127/7-line-quicksort-to-write-in-interviews-(Python)
+- https://stackoverflow.com/questions/10162679/python-delete-element-from-heap
