@@ -6,6 +6,10 @@
 ## Sliding Window Technique
 - https://zengruiwang.medium.com/sliding-window-technique-360d840d5740
 
+## Substring
+- For a string of length N, there are N substrings that end with the end char.
+- See https://leetcode.com/problems/count-number-of-homogenous-substrings/editorial/
+
 ## Prefix/Suffix Sum
 TBD
 
