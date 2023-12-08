@@ -14,3 +14,4 @@ Collection of common datastructure implementations and problem solutions.
 - https://leetcode.com/problems/sort-an-array/discuss/277127/7-line-quicksort-to-write-in-interviews-(Python)
 - https://stackoverflow.com/questions/10162679/python-delete-element-from-heap
 - https://leetcode.com/problems/minimum-path-sum/discuss/584967/Python-Grid-reduction-(Sounds-fancy-but-a-simple-method)-no-additional-space
+- https://www.thealgorist.com/Algo/Tree/ThreadedBinTree
