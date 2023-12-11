@@ -22,3 +22,29 @@ class Solution:
             return min(insertion, deletion, replacement) + 1
         
         return distance()
+
+# Top-Down
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        M, N = len(word1), len(word2)
+        memo = [[0] * (N + 1) for _ in range(M + 1)]
+
+        for i in range(1, M + 1):
+            memo[i][0] = i
+
+        for j in range(1, N + 1):
+            memo[0][j] = j
+
+        for i in range(1, M + 1):
+            for j in range(1, N + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    memo[i][j] = memo[i - 1][j - 1]
+                    continue
+
+                memo[i][j] = min(
+                    memo[i - 1][j - 1],
+                    memo[i - 1][j],
+                    memo[i][j - 1],
+                ) + 1
+                
+        return memo[M][N]
