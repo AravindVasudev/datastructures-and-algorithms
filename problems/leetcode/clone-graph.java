@@ -46,3 +46,22 @@ class Solution {
         return newNode;
     }
 }
+
+// Python
+from typing import Optional, Mapping
+class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        return self.clone(node, {})
+
+    def clone(self, node: Optional['Node'], visited: Mapping[int, 'Node']) -> Optional['Node']:
+        if not node:
+            return None
+
+        if node.val in visited:
+            return visited[node.val]
+
+        copy = visited[node.val] = Node(node.val)
+        for neighbor in node.neighbors:
+            copy.neighbors.append(self.clone(neighbor, visited))
+
+        return copy
