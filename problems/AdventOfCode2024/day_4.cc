@@ -2,32 +2,22 @@
 #include <iostream>
 #include <vector>
 
+const std::string XMAS{"XMAS"};
+
 bool search(const std::vector<std::vector<char> >& grid, int row, int col,
-            int x, int y, char next = 'X') {
+            int x, int y, int next = 0) {
   // Not found.
   if (row < 0 || row >= grid.size() || col < 0 || col >= grid[0].size() ||
-      grid[row][col] != next) {
+      grid[row][col] != XMAS[next]) {
     return false;
   }
 
   // Found.
-  if (next == 'S') {
+  if (next == XMAS.size() - 1) {
     return true;
   }
 
-  switch (next) {
-    case 'X':
-      next = 'M';
-      break;
-    case 'M':
-      next = 'A';
-      break;
-    case 'A':
-      next = 'S';
-      break;
-  }
-
-  return search(grid, row + x, col + y, x, y, next);
+  return search(grid, row + x, col + y, x, y, next+1);
 }
 
 int countXMASI(const std::vector<std::vector<char> >& grid) {
@@ -58,41 +48,27 @@ int countXMASI(const std::vector<std::vector<char> >& grid) {
 int countXMASII(std::vector<std::vector<char> >& grid) {
   const int N = grid.size();
   const int M = grid[0].size();
-  const char START = 'M';
+  const int START = 1;
   int count{};
 
   for (int i = 0; i < N; i++) {
     for (int j = 0; j < M; j++) {
-      // Case 1: Top Left.
-      if (search(grid, i, j, -1, -1, START) &&
-          (search(grid, i - 2, j, 1, -1, START) ||
-           search(grid, i, j - 2, -1, 1, START))) {
-        count++;
-        grid[i - 1][j - 1] = '.';  // Mark visited.
-      }
+      // Search diagonals only.
+      for (int d1 = -1; d1 <= 1; d1++) {
+        for (int d2 = -1; d2 <= 1; d2++) {
+          if (d1 == 0 || d2 == 0) {
+            continue;
+          }
 
-      // Case 2: Top Right.
-      if (search(grid, i, j, -1, 1, START) &&
-          (search(grid, i - 2, j, 1, 1, START) ||
-           search(grid, i, j + 2, -1, -1, START))) {
-        count++;
-        grid[i - 1][j + 1] = '.';  // Mark visited.
-      }
-
-      // Case 3: Bottom Left.
-      if (search(grid, i, j, 1, -1, START) &&
-          (search(grid, i + 2, j, -1, -1, START) ||
-           search(grid, i, j - 2, 1, 1, START))) {
-        count++;
-        grid[i + 1][j - 1] = '.';  // Mark visited.
-      }
-
-      // Case 4: Bottom Right.
-      if (search(grid, i, j, 1, 1, START) &&
-          (search(grid, i + 2, j, -1, 1, START) ||
-           search(grid, i, j + 2, 1, -1, START))) {
-        count++;
-        grid[i + 1][j + 1] = '.';  // Mark visited.
+          // If the current diagonal has 'MAS', search the other diagonal in
+          // both possible directions.
+          if (search(grid, i, j, d1, d2, START) &&
+              (search(grid, i + (d1 * 2), j, (d1 * -1), d2, START) ||
+               search(grid, i, j + (d2 * 2), d1, (d2 * -1), START))) {
+            count++;
+            grid[i + d1][j + d2] = '.';  // Mark visited.
+          }
+        }
       }
     }
   }
