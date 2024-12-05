@@ -4,17 +4,27 @@
 #include <iostream>
 #include <queue>
 #include <sstream>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
-// Inserts "X|Y" edge into the given graph.
-void addEdge(std::unordered_map<int, std::vector<int>>& graph,
-             const std::string& edge) {
+// Splits "X|Y" -> {X, Y}.
+std::pair<int, int> splitEdge(const std::string& edge) {
   const size_t delimiter = edge.find('|');
-  const int inNode = std::stoi(edge.substr(0, delimiter));
-  const int outNode = std::stoi(edge.substr(delimiter + 1));
+  return {std::stoi(edge.substr(0, delimiter)),
+          std::stoi(edge.substr(delimiter + 1))};
+}
 
-  graph[inNode].push_back(outNode);
+// converts "x,y,z" -> {x, y, z}.
+std::vector<int> splitPages(const std::string& pages) {
+  std::stringstream stream(pages);
+  std::vector<int> manual;
+
+  std::string page;
+  while (std::getline(stream, page, ',')) {
+    manual.push_back(std::stoi(page));
+  }
+
+  return manual;
 }
 
 // Returns topological sort of the graph using Kahn's Algorithm.
@@ -61,52 +71,27 @@ std::vector<int> topologicalSort(
   return sorted;
 }
 
-// converts "x,y,z" -> {x, y, z}.
-std::vector<int> splitPages(const std::string& pages) {
-  std::stringstream stream(pages);
-  std::vector<int> manual;
-
-  std::string page;
-  while (std::getline(stream, page, ',')) {
-    manual.push_back(std::stoi(page));
-  }
-
-  return manual;
-}
-
-std::unordered_map<int, std::vector<int>> generateSubset(
-    const std::unordered_map<int, std::vector<int>>& graph,
+std::unordered_map<int, std::vector<int>> generateSubgraph(
+    const std::vector<std::pair<int, int>>& edges,
     const std::vector<int>& manual) {
   std::unordered_set<int> uniquePages(manual.cbegin(), manual.cend());
-  std::unordered_map<int, std::vector<int>> subset(graph); // clone.
+  std::unordered_map<int, std::vector<int>> graph;
 
-  for (auto it = subset.begin(); it != subset.end();) {
-    if (uniquePages.find(it->first) == uniquePages.end()) {
-      it = subset.erase(it); // Remove entire node.
-      continue;
+  for (const auto& edge : edges) {
+    // Only add edge if it's revelant to the given manual.
+    if (uniquePages.find(edge.first) != uniquePages.end() && uniquePages.find(edge.second) != uniquePages.end()) {
+      graph[edge.first].push_back(edge.second);
     }
-
-    // Remove unfound neighbors.
-    auto& neighbors = it->second;
-    for (auto el = neighbors.begin(); el != neighbors.end();) {
-      if (uniquePages.find(*el) == uniquePages.end()) {
-        el = neighbors.erase(el);
-      } else {
-        el++;
-      }
-    }
-
-    it++;
   }
 
-  return subset;
+  return graph;
 }
 
 int validManualSum(const std::vector<std::vector<int>>& manuals,
-                   const std::unordered_map<int, std::vector<int>>& graph) {
+                   const std::vector<std::pair<int, int>>& edges) {
   int sum{};
   for (auto manual : manuals) {
-    const auto ordering = topologicalSort(generateSubset(graph, manual));
+    const auto ordering = topologicalSort(generateSubgraph(edges, manual));
     if (manual == ordering) {
       sum += manual[manual.size() / 2];
     }
@@ -116,11 +101,10 @@ int validManualSum(const std::vector<std::vector<int>>& manuals,
 }
 
 int invalidManualSum(const std::vector<std::vector<int>>& manuals,
-                     const std::unordered_map<int, std::vector<int>>& graph) {
+                     const std::vector<std::pair<int, int>>& edges) {
   int sum{};
   for (auto manual : manuals) {
-    const auto ordering = topologicalSort(generateSubset(graph, manual));
-
+    const auto ordering = topologicalSort(generateSubgraph(edges, manual));
     if (manual != ordering) {
       sum += ordering[ordering.size() / 2];
     }
@@ -136,7 +120,8 @@ int main() {
     return 1;
   }
 
-  std::unordered_map<int, std::vector<int>> graph;
+  std::vector<std::pair<int, int>> edges;
+  std::vector<std::vector<int>> manuals;
   std::string line;
 
   // Parse all the edges.
@@ -145,17 +130,16 @@ int main() {
       break;
     }
 
-    addEdge(graph, line);
+    edges.emplace_back(splitEdge(line));
   }
 
   // Read all the pages.
-  std::vector<std::vector<int>> manuals;
   while (getline(input, line)) {
     manuals.emplace_back(splitPages(line));
   }
 
-  std::cout << "∑(middle valid pages): " << validManualSum(manuals, graph)
+  std::cout << "∑(middle valid pages): " << validManualSum(manuals, edges)
             << std::endl;
-  std::cout << "∑(middle invalid pages): " << invalidManualSum(manuals, graph)
+  std::cout << "∑(middle invalid pages): " << invalidManualSum(manuals, edges)
             << std::endl;
 }
