@@ -1,5 +1,3 @@
-#include <algorithm>
-#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <queue>
