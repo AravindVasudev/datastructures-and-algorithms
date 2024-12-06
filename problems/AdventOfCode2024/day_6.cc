@@ -1,6 +1,5 @@
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <unordered_set>
 
 struct pairHash {
@@ -27,7 +26,7 @@ std::pair<int, int> getCurrentPosition(const std::vector<std::string>& grid) {
 }
 
 inline int hashState(const std::pair<int, int>& p,
-                             const std::pair<int, int>& d) {
+                     const std::pair<int, int>& d) {
   return (p.first * 130 + p.second) * 130 + (d.first * 10 + d.second);
 }
 
