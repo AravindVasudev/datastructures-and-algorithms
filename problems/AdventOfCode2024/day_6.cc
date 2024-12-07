@@ -3,21 +3,33 @@
 
 ```
 $ brew install folly
-$ g++ -std=c++20 -I /opt/homebrew/Cellar/folly/2024.12.02.00/include -I /opt/homebrew/Cellar/boost/1.86.0/include -I /opt/homebrew/Cellar/glog/0.6.0/include -I /opt/homebrew/Cellar/gflags/2.2.2/include -I /opt/homebrew/Cellar/double-conversion/3.3.0/include -I /opt/homebrew/Cellar/fmt/11.0.2/include -I /opt/homebrew/Cellar/libevent/2.1.12_1/include -L /opt/homebrew/Cellar/folly/2024.12.02.00/lib -L /opt/homebrew/Cellar/boost/1.86.0/lib -L /opt/homebrew/Cellar/glog/0.6.0/lib -L /opt/homebrew/Cellar/gflags/2.2.2/lib -L /opt/homebrew/Cellar/double-conversion/3.3.0/lib -L /opt/homebrew/Cellar/fmt/11.0.2/lib -L /opt/homebrew/Cellar/libevent/2.1.12_1/lib -lfolly -lglog -O3 day_6.cc -o day_6
+$ g++ -std=c++20 -I /opt/homebrew/Cellar/folly/2024.12.02.00/include -I
+/opt/homebrew/Cellar/boost/1.86.0/include -I
+/opt/homebrew/Cellar/glog/0.6.0/include -I
+/opt/homebrew/Cellar/gflags/2.2.2/include -I
+/opt/homebrew/Cellar/double-conversion/3.3.0/include -I
+/opt/homebrew/Cellar/fmt/11.0.2/include -I
+/opt/homebrew/Cellar/libevent/2.1.12_1/include -L
+/opt/homebrew/Cellar/folly/2024.12.02.00/lib -L
+/opt/homebrew/Cellar/boost/1.86.0/lib -L /opt/homebrew/Cellar/glog/0.6.0/lib -L
+/opt/homebrew/Cellar/gflags/2.2.2/lib -L
+/opt/homebrew/Cellar/double-conversion/3.3.0/lib -L
+/opt/homebrew/Cellar/fmt/11.0.2/lib -L
+/opt/homebrew/Cellar/libevent/2.1.12_1/lib -lfolly -lglog -O3 day_6.cc -o day_6
 $ ./day_6
 # of distinct positions: 5551
 # of possibilites: 1939
 
 $ hyperfine --runs 10 ./day_6
 Benchmark 1: ./day_6
-  Time (mean ± σ):     543.9 ms ±   7.1 ms    [User: 4039.9 ms, System: 31.3 ms]
-  Range (min … max):   536.4 ms … 561.0 ms    10 runs
+  Time (mean ± σ):      21.5 ms ±   0.8 ms    [User: 84.6 ms, System: 4.5 ms]
+  Range (min … max):    20.3 ms …  22.9 ms    10 runs
 
 # Just Part-2
 $ hyperfine --runs 10 ./day_6
 Benchmark 1: ./day_6
-  Time (mean ± σ):     542.7 ms ±   5.6 ms    [User: 4025.8 ms, System: 34.4 ms]
-  Range (min … max):   533.8 ms … 548.8 ms    10 runs
+  Time (mean ± σ):      21.3 ms ±   0.7 ms    [User: 84.0 ms, System: 4.6 ms]
+  Range (min … max):    20.4 ms …  22.7 ms    10 runs
 ```
 
 ******/
@@ -52,9 +64,8 @@ std::pair<int, int> getCurrentPosition(const std::vector<std::string>& grid) {
   throw "invalid grid";
 }
 
-inline int hashState(const std::pair<int, int>& p,
-                     const std::pair<int, int>& d) {
-  return (p.first * 130 + p.second) * 130 + (d.first * 10 + d.second);
+inline int hashState(const int X, const int Y, const std::pair<int, int>& d) {
+  return (X * 130 + Y) * 130 + (d.first * 10 + d.second);
 }
 
 std::unordered_set<std::pair<int, int>, pairHash> getDistinctPath(
@@ -92,7 +103,7 @@ bool doesLoop(const std::vector<std::string>& grid,
   const int N = grid.size(), M = grid[0].size();
   int d = 0;
   std::unordered_set<int> states;
-  states.insert(hashState(position, directions[d]));
+  states.insert(hashState(position.first, position.second, directions[d]));
 
   // Brute force walk through the grid.
   while (true) {
@@ -106,18 +117,18 @@ bool doesLoop(const std::vector<std::string>& grid,
     if (grid[nextX][nextY] == '#' ||
         (newObstacle.first == nextX && newObstacle.second == nextY)) {
       d = (d + 1) % directions.size();  // turn right.
+
+      const int state = hashState(nextX, nextY, directions[d]);
+      if (states.find(state) != states.end()) {
+        return true;  // loop
+      }
+      states.emplace(state);
+
       continue;
     }
 
     position.first = nextX;
     position.second = nextY;
-
-    const int state = hashState(position, directions[d]);
-    if (states.find(state) != states.end()) {
-      return true;  // loop
-    }
-
-    states.emplace(state);
   }
 
   return false;
