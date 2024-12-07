@@ -22,8 +22,8 @@ Part 2: 95297119227552
 
 $ hyperfine --runs 10 ./day_7
 Benchmark 1: ./day_7
-  Time (mean ± σ):      20.7 ms ±   0.8 ms    [User: 74.5 ms, System: 5.0 ms]
-  Range (min … max):    19.5 ms …  22.3 ms    10 runs
+  Time (mean ± σ):      18.0 ms ±   1.1 ms    [User: 60.7 ms, System: 4.1 ms]
+  Range (min … max):    16.9 ms …  20.8 ms    10 runs
 ```
 
 */
@@ -60,6 +60,10 @@ bool isSolvable(const std::pair<long, std::vector<long>>& equation,
     return total == equation.first;
   }
 
+  if (total > equation.first) {
+    return false;  // branch pruning.
+  }
+
   return isSolvable(equation, i + 1, total + equation.second[i]) ||
          isSolvable(equation, i + 1, total * equation.second[i]);
 }
@@ -80,6 +84,10 @@ bool isSolvableWithConcat(const std::pair<long, std::vector<long>>& equation,
     return total == equation.first;
   }
 
+  if (total > equation.first) {
+    return false;  // branch pruning.
+  }
+
   return isSolvableWithConcat(equation, i + 1, total + equation.second[i]) ||
          isSolvableWithConcat(equation, i + 1, total * equation.second[i]) ||
          isSolvableWithConcat(equation, i + 1,
@@ -93,7 +101,7 @@ long part1(const std::vector<std::pair<long, std::vector<long>>>& equations) {
   const auto numCores = std::thread::hardware_concurrency();
   folly::CPUThreadPoolExecutor executor(numCores);
   std::vector<folly::Future<std::pair<bool, size_t>>> futures;
-  
+
   for (int i = 0; i < N; i++) {
     futures.push_back(folly::via(&executor, [&equations, i]() {
       return std::make_pair(isSolvable(equations[i]), i);
@@ -118,7 +126,7 @@ long part2(const std::vector<std::pair<long, std::vector<long>>>& equations) {
   const auto numCores = std::thread::hardware_concurrency();
   folly::CPUThreadPoolExecutor executor(numCores);
   std::vector<folly::Future<std::pair<bool, size_t>>> futures;
-  
+
   for (int i = 0; i < N; i++) {
     futures.push_back(folly::via(&executor, [&equations, i]() {
       return std::make_pair(isSolvableWithConcat(equations[i]), i);
