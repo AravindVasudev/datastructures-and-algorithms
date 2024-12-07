@@ -1,3 +1,30 @@
+/******
+* Instructions for Apple Silicon (M1 Pro):
+
+```
+$ brew install folly
+$ g++ -std=c++20 -I /opt/homebrew/Cellar/folly/2024.12.02.00/include -I /opt/homebrew/Cellar/boost/1.86.0/include -I /opt/homebrew/Cellar/glog/0.6.0/include -I /opt/homebrew/Cellar/gflags/2.2.2/include -I /opt/homebrew/Cellar/double-conversion/3.3.0/include -I /opt/homebrew/Cellar/fmt/11.0.2/include -I /opt/homebrew/Cellar/libevent/2.1.12_1/include -L /opt/homebrew/Cellar/folly/2024.12.02.00/lib -L /opt/homebrew/Cellar/boost/1.86.0/lib -L /opt/homebrew/Cellar/glog/0.6.0/lib -L /opt/homebrew/Cellar/gflags/2.2.2/lib -L /opt/homebrew/Cellar/double-conversion/3.3.0/lib -L /opt/homebrew/Cellar/fmt/11.0.2/lib -L /opt/homebrew/Cellar/libevent/2.1.12_1/lib -lfolly -lglog -O3 day_6.cc -o day_6
+$ ./day_6
+# of distinct positions: 5551
+# of possibilites: 1939
+
+$ hyperfine --runs 10 ./day_6
+Benchmark 1: ./day_6
+  Time (mean ± σ):     543.9 ms ±   7.1 ms    [User: 4039.9 ms, System: 31.3 ms]
+  Range (min … max):   536.4 ms … 561.0 ms    10 runs
+
+# Just Part-2
+$ hyperfine --runs 10 ./day_6
+Benchmark 1: ./day_6
+  Time (mean ± σ):     542.7 ms ±   5.6 ms    [User: 4025.8 ms, System: 34.4 ms]
+  Range (min … max):   533.8 ms … 548.8 ms    10 runs
+```
+
+******/
+
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#include <folly/futures/Future.h>
+
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
@@ -60,7 +87,8 @@ std::unordered_set<std::pair<int, int>, pairHash> getDistinctPath(
 }
 
 bool doesLoop(const std::vector<std::string>& grid,
-              std::pair<int, int> position) {
+              std::pair<int, int> position,
+              const std::pair<int, int>& newObstacle) {
   const int N = grid.size(), M = grid[0].size();
   int d = 0;
   std::unordered_set<int> states;
@@ -75,7 +103,8 @@ bool doesLoop(const std::vector<std::string>& grid,
       break;  // left the grid.
     }
 
-    if (grid[nextX][nextY] == '#') {
+    if (grid[nextX][nextY] == '#' ||
+        (newObstacle.first == nextX && newObstacle.second == nextY)) {
       d = (d + 1) % directions.size();  // turn right.
       continue;
     }
@@ -102,16 +131,24 @@ int part2(std::vector<std::string>& grid, const std::pair<int, int>& position) {
   int count{};
   auto options = getDistinctPath(grid, position);
 
+  const auto numCores = std::thread::hardware_concurrency();
+  folly::CPUThreadPoolExecutor executor(numCores);
+  std::vector<folly::Future<bool>> futures;
+
   for (const auto& option : options) {
     if (option.first == position.first && option.second == position.second) {
       continue;  // skip start.
     }
 
-    grid[option.first][option.second] = '#';
-    if (doesLoop(grid, position)) {
+    futures.push_back(folly::via(
+        &executor, [&]() { return doesLoop(grid, position, option); }));
+  }
+
+  auto results = folly::collectAll(futures).get();  // wait.
+  for (const auto& f : results) {
+    if (f.value()) {
       count++;
     }
-    grid[option.first][option.second] = '.';
   }
 
   return count;
