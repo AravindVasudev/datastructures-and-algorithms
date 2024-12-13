@@ -37,18 +37,14 @@ ClawMachine parse(const std::string& buttonA, const std::string& buttonB,
   return machine;
 }
 
-long play(const ClawMachine& machine, int priceX, int priceY,
+long play(const ClawMachine& machine, long priceX, long priceY,
           std::unordered_map<std::string, long>& memo) {
   if (priceX == 0 && priceY == 0) {
     return 0;  // We got the price baby!
   }
 
   if (priceX < 0 || priceY < 0) {
-    // This is a bandaid over a bad design situation. when play() is called
-    // with invalid price, we return max int value. To protect the logic from
-    // overflowing, we actually return long. Ideally, I should either validate
-    // before making the call or maybe throw an expection here.
-    return std::numeric_limits<int>::max();
+    return -1;
   }
 
   auto key = std::format("{},{}", priceX, priceY);
@@ -56,21 +52,29 @@ long play(const ClawMachine& machine, int priceX, int priceY,
     return memo[key];
   }
 
-  auto costA = 3 + play(machine, priceX - machine.buttonA.first,
-                        priceY - machine.buttonA.second, memo);
-  auto costB = 1 + play(machine, priceX - machine.buttonB.first,
-                        priceY - machine.buttonB.second, memo);
+  auto playA = play(machine, priceX - machine.buttonA.first,
+                    priceY - machine.buttonA.second, memo);
+  auto playB = play(machine, priceX - machine.buttonB.first,
+                    priceY - machine.buttonB.second, memo);
 
-  return memo[key] = std::min(costA, costB);
+  if (playA < 0 && playB < 0) {
+    return memo[key] = -1;
+  } else if (playA < 0) {
+    return memo[key] = 1 + playB;
+  } else if (playB < 0) {
+    return memo[key] = 3 + playA;
+  }
+
+  return memo[key] = std::min(3 + playA, 1 + playB);
 }
 
-long playAll(const std::vector<ClawMachine>& machines) {
+long playAll(const std::vector<ClawMachine>& machines, long offset = 0) {
   long total{};
   for (const auto& machine : machines) {
     std::unordered_map<std::string, long> memo;
-    if (auto tokens =
-            play(machine, machine.price.first, machine.price.second, memo);
-        tokens < std::numeric_limits<int>::max()) {
+    if (auto tokens = play(machine, machine.price.first + offset,
+                           machine.price.second + offset, memo);
+        tokens > 0) {
       total += tokens;
     }
   }
@@ -97,5 +101,5 @@ int main() {
   }
 
   std::cout << "Part 1: " << playAll(machines) << std::endl;
-  // std::cout << "Part 2: " << playAll(machines) << std::endl;
+  // std::cout << "Part 2: " << playAll(machines, 10000000000000) << std::endl;
 }
