@@ -1,6 +1,9 @@
+#include <format>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <queue>
+#include <unordered_map>
 #include <unordered_set>
 
 const char EMPTY = '.';
@@ -27,6 +30,15 @@ struct pairHash {
     return p.first ^ (p.second << 1);
   }
 };
+
+struct pairEqual {
+  bool operator()(const std::pair<int, int>& lhs,
+                  const std::pair<int, int>& rhs) const {
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+  }
+};
+
+using Path = std::unordered_set<std::pair<int, int>, pairHash>;
 
 struct QueueNode {
   std::pair<int, int> node;
@@ -61,25 +73,65 @@ std::pair<std::pair<int, int>, std::pair<int, int>> findStartEnd(
   return {start, end};
 }
 
-int part1(const std::vector<std::string>& grid) {
+int countVisited(const std::vector<std::string>& grid,
+                 const std::unordered_map<std::pair<int, int>, Path, pairHash,
+                                          pairEqual>& visited,
+                 const std::pair<int, int>& start,
+                 const std::pair<int, int>& cur, Path& counted) {
+  std::cout << std::format("-- ({}, {})\n", cur.first, cur.second);
+  if (cur == start) {
+    return 0;
+  }
+
+  int count{};
+  for (const std::pair<int, int>& node : visited.at(cur)) {
+    if (counted.find(node) == counted.cend()) {
+      counted.insert(node);
+      count += 1 + countVisited(grid, visited, start, node, counted);
+    }
+  }
+
+  return count;
+}
+
+std::pair<int, int> dijkstra(const std::vector<std::string>& grid) {
   const int N = grid.size(), M = grid[0].size();
+  std::pair<int, int> result{std::numeric_limits<int>::max(), 0};
   auto [start, end] = findStartEnd(grid);
 
   std::priority_queue<QueueNode> queue;
-  std::unordered_set<std::pair<int, int>, pairHash> visited;
+  std::unordered_map<std::pair<int, int>, Path, pairHash, pairEqual> visited;
+  std::unordered_map<std::pair<int, int>, int, pairHash, pairEqual> costs;
   queue.emplace(QueueNode{.score = 0, .node = start, .d = 1});
-  visited.insert(start);
+  visited[start].emplace(start);
+  costs[start] = 0;
 
   auto process = [&](QueueNode& node, int d, int cost) {
     std::pair<int, int> next{node.node.first + directions[d].first,
                              node.node.second + directions[d].second};
-    if (!bounded(next, N, M) || grid[next.first][next.second] == WALL ||
-        visited.find(next) != visited.cend()) {
+    if (!bounded(next, N, M) || grid[next.first][next.second] == WALL) {
       return;
     }
 
-    queue.emplace(QueueNode{.score = node.score + cost, .node = next, .d = d});
-    visited.emplace(next);
+    std::cout << std::format("({}, {}) -> ({}, {})\n", node.node.first, node.node.second, next.first, next.second);
+
+    int nextCost = node.score + cost;
+    if (auto it = visited.find(next); it != visited.cend()) {
+      if (nextCost == costs[next]) {
+        visited[next].insert(node.node);
+      } else if (nextCost < costs[next]) {
+        visited[next].clear();
+        visited[next].insert(node.node);
+        costs[next] = nextCost;
+      }
+
+      return;
+    }
+
+    
+    queue.emplace(QueueNode{.score = nextCost, .node = next, .d = d});
+    visited[next].insert(node.node);
+    costs[next] = nextCost;
   };
 
   while (!queue.empty()) {
@@ -87,15 +139,32 @@ int part1(const std::vector<std::string>& grid) {
     queue.pop();
 
     if (node.node.first == end.first && node.node.second == end.second) {
-      return node.score;  // Found the shortest path!
+      // Reached the end. Record if this is the shortest path.
+      if (node.score > result.first) {
+        break;  // No more optimal paths.
+      }
+
+      result.first = node.score;
     }
 
     process(node, node.d, 1);
-    process(node, clockwise(node.d), 1001);
-    process(node, counterClosewise(node.d), 1001);
+    process(node, clockwise(node.d), 1000);
+    process(node, counterClosewise(node.d), 1000);
   }
 
-  return -1;
+  std::cout << "=====" << std::endl;
+  for (auto& kv : visited) {
+    std::cout << std::format("({}, {}) -> ", kv.first.first, kv.first.second);
+    for (auto& n : kv.second) {
+      std::cout << std::format("({}, {}) ", n.first, n.second);
+    }
+    std::cout << std::endl;
+  }
+
+  Path counted;
+  counted.insert(end);
+  result.second = countVisited(grid, visited, start, end, counted) + 1;
+  return result;
 }
 
 int main() {
@@ -112,5 +181,7 @@ int main() {
     grid.emplace_back(line);
   }
 
-  std::cout << "Part 1: " << part1(grid) << std::endl;
+  auto result = dijkstra(grid);
+  std::cout << "Part 1: " << result.first << std::endl;
+  std::cout << "Part 2: " << result.second << std::endl;
 }
