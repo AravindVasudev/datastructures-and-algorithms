@@ -1,4 +1,3 @@
-#include <format>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -6,7 +5,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-const char EMPTY = '.';
 const char WALL = '#';
 const std::array<std::pair<int, int>, 4> directions{
     std::make_pair(-1, 0),
@@ -16,29 +14,13 @@ const std::array<std::pair<int, int>, 4> directions{
 };
 
 inline int clockwise(int d) { return (d + 1) % 4; }
-
-inline int counterClosewise(int d) {
-  if (d == 0) {
-    return 3;
-  }
-
-  return d - 1;
-}
+inline int counterClosewise(int d) { return (d + 3) % 4; }
 
 struct pairHash {
   inline std::size_t operator()(const std::pair<int, int>& p) const {
     return p.first ^ (p.second << 1);
   }
 };
-
-struct pairEqual {
-  bool operator()(const std::pair<int, int>& lhs,
-                  const std::pair<int, int>& rhs) const {
-    return lhs.first == rhs.first && lhs.second == rhs.second;
-  }
-};
-
-using Path = std::unordered_set<std::pair<int, int>, pairHash>;
 
 struct QueueNode {
   std::pair<int, int> node;
@@ -47,7 +29,20 @@ struct QueueNode {
   bool operator<(const QueueNode& other) const {
     return score > other.score;  // Force min-heap.
   }
+
+  bool operator==(const QueueNode& other) const {
+    return d == other.d && node.first == other.node.first &&
+           node.second == other.node.second;
+  }
 };
+
+struct QueueNodeHash {
+  inline std::size_t operator()(const QueueNode& qn) const {
+    return qn.node.first ^ (qn.node.second << 1) ^ (qn.d << 2);
+  }
+};
+
+using Path = std::unordered_set<QueueNode, QueueNodeHash>;
 
 inline bool bounded(const std::pair<int, int>& cell, const int N, const int M) {
   return cell.first >= 0 && cell.first < N && cell.second >= 0 &&
@@ -73,65 +68,72 @@ std::pair<std::pair<int, int>, std::pair<int, int>> findStartEnd(
   return {start, end};
 }
 
-int countVisited(const std::vector<std::string>& grid,
-                 const std::unordered_map<std::pair<int, int>, Path, pairHash,
-                                          pairEqual>& visited,
+int countVisited(std::unordered_map<QueueNode, Path, QueueNodeHash>& path,
                  const std::pair<int, int>& start,
-                 const std::pair<int, int>& cur, Path& counted) {
-  std::cout << std::format("-- ({}, {})\n", cur.first, cur.second);
-  if (cur == start) {
-    return 0;
+                 const std::pair<int, int>& end) {
+  std::queue<QueueNode> queue;
+  std::unordered_set<QueueNode, QueueNodeHash> visited;
+  std::unordered_set<std::pair<int, int>, pairHash> nodes;
+
+  for (int i = 0; i < 4; i++) {
+    auto node = QueueNode{.node = end, .d = i};
+    queue.push(node);
+    visited.insert(node);
   }
 
-  int count{};
-  for (const std::pair<int, int>& node : visited.at(cur)) {
-    if (counted.find(node) == counted.cend()) {
-      counted.insert(node);
-      count += 1 + countVisited(grid, visited, start, node, counted);
+  while (!queue.empty()) {
+    auto node = queue.front();
+    queue.pop();
+    nodes.insert(node.node);
+
+    for (const auto& next : path[node]) {
+      if (visited.find(next) == visited.cend()) {
+        queue.push(next);
+        visited.insert(next);
+      }
     }
   }
 
-  return count;
+  return nodes.size();
 }
 
 std::pair<int, int> dijkstra(const std::vector<std::string>& grid) {
   const int N = grid.size(), M = grid[0].size();
-  std::pair<int, int> result{std::numeric_limits<int>::max(), 0};
+  int score = std::numeric_limits<int>::max();
   auto [start, end] = findStartEnd(grid);
 
   std::priority_queue<QueueNode> queue;
-  std::unordered_map<std::pair<int, int>, Path, pairHash, pairEqual> visited;
-  std::unordered_map<std::pair<int, int>, int, pairHash, pairEqual> costs;
-  queue.emplace(QueueNode{.score = 0, .node = start, .d = 1});
-  visited[start].emplace(start);
-  costs[start] = 0;
+  std::unordered_map<QueueNode, Path, QueueNodeHash> visited;
+  std::unordered_map<QueueNode, int, QueueNodeHash> costs;
+  auto qn = QueueNode{.score = 0, .node = start, .d = 1};
+  queue.push(qn);
+  visited[qn].emplace(qn);
+  costs[qn] = 0;
 
-  auto process = [&](QueueNode& node, int d, int cost) {
-    std::pair<int, int> next{node.node.first + directions[d].first,
-                             node.node.second + directions[d].second};
+  auto process = [&](QueueNode& node, std::pair<int, int>& next, int d,
+                     int cost) {
     if (!bounded(next, N, M) || grid[next.first][next.second] == WALL) {
       return;
     }
 
-    std::cout << std::format("({}, {}) -> ({}, {})\n", node.node.first, node.node.second, next.first, next.second);
-
-    int nextCost = node.score + cost;
-    if (auto it = visited.find(next); it != visited.cend()) {
-      if (nextCost == costs[next]) {
-        visited[next].insert(node.node);
-      } else if (nextCost < costs[next]) {
-        visited[next].clear();
-        visited[next].insert(node.node);
-        costs[next] = nextCost;
+    QueueNode nextNode = {.node = next, .score = node.score + cost, .d = d};
+    if (visited.find(nextNode) != visited.cend()) {
+      if (nextNode.score == costs[nextNode]) {
+        visited[nextNode].insert(node);  // Equally good path.
+      } else if (nextNode.score < costs[nextNode]) {
+        // Found better path.
+        visited[nextNode].clear();
+        visited[nextNode].insert(node);
+        costs[nextNode] = nextNode.score;
       }
 
       return;
     }
 
-    
-    queue.emplace(QueueNode{.score = nextCost, .node = next, .d = d});
-    visited[next].insert(node.node);
-    costs[next] = nextCost;
+    // Add to queue.
+    queue.emplace(nextNode);
+    visited[nextNode].insert(node);
+    costs[nextNode] = nextNode.score;
   };
 
   while (!queue.empty()) {
@@ -140,31 +142,23 @@ std::pair<int, int> dijkstra(const std::vector<std::string>& grid) {
 
     if (node.node.first == end.first && node.node.second == end.second) {
       // Reached the end. Record if this is the shortest path.
-      if (node.score > result.first) {
+      if (node.score > score) {
         break;  // No more optimal paths.
       }
 
-      result.first = node.score;
+      score = node.score;
     }
 
-    process(node, node.d, 1);
-    process(node, clockwise(node.d), 1000);
-    process(node, counterClosewise(node.d), 1000);
+    std::pair<int, int> advance = {
+        node.node.first + directions[node.d].first,
+        node.node.second + directions[node.d].second};
+
+    process(node, advance, node.d, 1);
+    process(node, node.node, clockwise(node.d), 1000);
+    process(node, node.node, counterClosewise(node.d), 1000);
   }
 
-  std::cout << "=====" << std::endl;
-  for (auto& kv : visited) {
-    std::cout << std::format("({}, {}) -> ", kv.first.first, kv.first.second);
-    for (auto& n : kv.second) {
-      std::cout << std::format("({}, {}) ", n.first, n.second);
-    }
-    std::cout << std::endl;
-  }
-
-  Path counted;
-  counted.insert(end);
-  result.second = countVisited(grid, visited, start, end, counted) + 1;
-  return result;
+  return {score, countVisited(visited, start, end)};
 }
 
 int main() {
