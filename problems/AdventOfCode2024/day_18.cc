@@ -4,7 +4,6 @@
 #include <unordered_set>
 
 const int N = 71;        // Dimension
-const int FALLEN = 1024;  // Fallen for Part-1.
 const char WALL = '#';
 const std::array<std::pair<int, int>, 4> directions{
     std::make_pair(-1, 0),
@@ -26,15 +25,17 @@ void addWall(std::vector<std::string>& grid, const std::string& line) {
   grid[Y][X] = WALL;
 }
 
-int part1(const std::vector<std::string>& fallingOrder) {
+int computeSteps(const std::vector<std::string>& fallingOrder, const int fallen, std::unordered_map<int, int>& memo) {
+  // Check memo.
+  if (memo.find(fallen) != memo.cend()) {
+    return memo[fallen];
+  }
+  
   // Setup grid.
   std::vector<std::string> grid(N, std::string(N, '.'));
-  for (int i = 0; i < FALLEN; i++) {
+  for (int i = 0; i < fallen; i++) {
     addWall(grid, fallingOrder[i]);
   }
-
-  std::cout << std::endl;
-  for (auto& s : grid) std::cout << s << std::endl;
 
   std::queue<std::pair<int, int>> queue;
   std::unordered_set<std::pair<int, int>, pairHash> visited;
@@ -52,7 +53,7 @@ int part1(const std::vector<std::string>& fallingOrder) {
       queue.pop();
 
       if (node.first == N - 1 && node.second == N - 1) {
-        return level;
+        return memo[fallen] = level;
       }
 
       for (const auto& d : directions) {
@@ -71,7 +72,32 @@ int part1(const std::vector<std::string>& fallingOrder) {
     level++;
   }
 
-  return 0;
+  return memo[fallen] = -1;
+}
+
+int part1(const std::vector<std::string>& fallingOrder, int fallen=1024) {
+  std::unordered_map<int, int> memo;
+  return computeSteps(fallingOrder, fallen, memo);
+}
+
+std::string part2(const std::vector<std::string>& fallingOrder, int fallen=1024) {
+  std::unordered_map<int, int> memo;
+  // std::string result;
+  int l = fallen + 1, r = fallingOrder.size() - 1;
+  while (l < r) {
+    int mid = (l + r) / 2;
+    if (computeSteps(fallingOrder, mid, memo) == -1) {
+      // Cannot reach the end. Any number to the right of this would be
+      // unreachable as well. Hence the smallest number must be this or on the
+      // left.
+      r = mid;
+    } else {
+      // Can reach the end, skip left half.
+      l = mid + 1;
+    }
+  }
+
+  return fallingOrder[l - 1];
 }
 
 int main() {
@@ -88,5 +114,6 @@ int main() {
     fallingOrder.emplace_back(line);
   }
 
-  std::cout << "Part 1: " << part1(fallingOrder);
+  std::cout << "Part 1: " << part1(fallingOrder) << std::endl;
+  std::cout << "Part 2: " << part2(fallingOrder) << std::endl;
 }
