@@ -14,11 +14,11 @@ enum Opcode {
   CDV,      // C = A % 2^combo(op).
 };
 
-using Register = int;
+using Register = long;
 Register A, B, C;
 
 inline std::string splitInput(const std::string& input) {
-  return input.substr(input.find(": ") + 1);
+  return input.substr(input.find(": ") + 2);
 }
 
 std::vector<int> parseProgram(const std::string& input) {
@@ -33,7 +33,7 @@ std::vector<int> parseProgram(const std::string& input) {
   return program;
 }
 
-inline int combo(int operand) {
+inline long combo(int operand) {
   if (operand < 4) {
     return operand;
   }
@@ -50,7 +50,7 @@ inline int combo(int operand) {
   throw "Invalid State";
 }
 
-inline int XDV(int operand) { return A / pow(2, combo(operand)); }
+inline long XDV(int operand) { return A / pow(2, combo(operand)); }
 
 std::string stringify(const std::vector<int>& output) {
   std::string result;
@@ -111,6 +111,43 @@ std::string run(const std::vector<int>& program) {
   return stringify(output);
 }
 
+long part2(const std::vector<int>& program, const int idx = 0,
+           const long start = 0) {
+  /*
+   * Input Code:
+   * 2,4,1,7,7,5,0,3,4,4,1,7,5,5,3,0
+   *
+   * 0. BST 4: B = A & 7.
+   * 1. BXL 7: B ^= 7.
+   * 2. CDV 5: C = A / 2**B.
+   * 3. ADV 3: A = A / 8. (or A & 7)
+   * 4. BXC 4: B ^= C.
+   * 5. BXL 7: B ^= 7.
+   * 6. OUT 5: print(B & 7).
+   * 7. JNZ 0: goto 0.
+   * ====
+   * B = (A & 7) ^ 7 ^ (A / 2**((A & 7) ^ 7)) ^ 7
+   * print(B & 7)
+   * A /= 8
+   * if A: goto 0
+   */
+  if (idx < 0) {
+    return start;  // done.
+  }
+
+  for (long i = 0; i < 8; i++) {
+    const long a = start * 8 + i;
+    const long b = (a & 7) ^ (a / static_cast<long>(pow(2, (a & 7) ^ 7)));
+    if ((b & 7) == program[idx]) {
+      if (long ret = part2(program, idx - 1, a); ret >= 0) {
+        return ret;
+      }
+    }
+  }
+
+  return -1;
+}
+
 int main() {
   std::ifstream file("input.txt");
   if (!file.is_open()) {
@@ -122,17 +159,19 @@ int main() {
 
   // Init machine.
   std::getline(file, line);
-  A = std::stoi(splitInput(line));
+  A = std::stol(splitInput(line));
 
   std::getline(file, line);
-  B = std::stoi(splitInput(line));
+  B = std::stol(splitInput(line));
 
   std::getline(file, line);
-  C = std::stoi(splitInput(line));
+  C = std::stol(splitInput(line));
 
   std::getline(file, line);  // Empty line.
   std::getline(file, line);
-  auto program = parseProgram(splitInput(line));
+  auto tape = splitInput(line);
+  auto program = parseProgram(tape);
 
   std::cout << "Part 1: " << run(program) << std::endl;
+  std::cout << "Part 2: " << part2(program, program.size() - 1) << std::endl;
 }
