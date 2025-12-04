@@ -48,33 +48,45 @@ bool canAccess(const std::vector<std::string>& grid, size_t i, size_t j) {
   return paperCount < 4;
 }
 
-long part1(std::vector<std::string>& grid) {
+std::unordered_set<std::pair<size_t, size_t>, pairHash> findCellsToRemove(
+    const std::vector<std::string>& grid) {
   auto X{grid.size()}, Y{grid[0].size()};
-  long canMove{};
+  std::unordered_set<std::pair<size_t, size_t>, pairHash> toRemove;
 
-  while (true) {
-    std::unordered_set<std::pair<size_t, size_t>, pairHash> toRemove;
-
-    for (auto i = 0; i < X; i++) {
-      for (auto j = 0; j < Y; j++) {
-        // Check if the cell can be accessed.
-        if (grid[i][j] == PAPER && canAccess(grid, i, j)) {
-          toRemove.insert({i, j});
-        }
+  for (auto i = 0; i < X; i++) {
+    for (auto j = 0; j < Y; j++) {
+      // Check if the cell can be accessed.
+      if (grid[i][j] == PAPER && canAccess(grid, i, j)) {
+        toRemove.insert({i, j});
       }
     }
+  }
 
+  return toRemove;
+}
+
+long part1(const std::vector<std::string>& grid) {
+  return findCellsToRemove(grid).size();
+}
+
+long part2(std::vector<std::string>& grid) {
+  long boxesMoved{};
+
+  while (true) {
+    const auto toRemove = findCellsToRemove(grid);
+
+    // Stop when there is nothing to remove.
     if (toRemove.empty()) {
       break;
     }
 
     for (auto& index : toRemove) {
       grid[index.first][index.second] = EMPTY;
-      canMove++;
+      boxesMoved++;
     }
   }
 
-  return canMove;
+  return boxesMoved;
 }
 
 int main() {
@@ -91,5 +103,5 @@ int main() {
   }
 
   std::cout << "Part 1: " << part1(grid) << std::endl;
-  std::cout << "Part 2: " << "b" << std::endl;
+  std::cout << "Part 2: " << part2(grid) << std::endl;
 }
