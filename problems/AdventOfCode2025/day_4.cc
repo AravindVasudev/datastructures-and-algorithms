@@ -3,7 +3,14 @@
 #include <queue>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
+
+struct pairHash {
+  inline std::size_t operator()(const std::pair<size_t, size_t>& p) const {
+    return p.first ^ (p.second << 1);
+  }
+};
 
 const char EMPTY = '.';
 const char PAPER = '@';
@@ -11,7 +18,7 @@ const char PAPER = '@';
 bool canAccess(const std::vector<std::string>& grid, size_t i, size_t j) {
   int paperCount{};
   auto X{grid.size()}, Y{grid[0].size()};
-  
+
   for (int offsetI = -1; offsetI <= 1; offsetI++) {
     for (int offsetJ = -1; offsetJ <= 1; offsetJ++) {
       // Just check the eight surrounding cells.
@@ -30,22 +37,40 @@ bool canAccess(const std::vector<std::string>& grid, size_t i, size_t j) {
       if (grid[nextI][nextJ] == PAPER) {
         paperCount++;
       }
+
+      // No need to check more.
+      if (paperCount >= 4) {
+        return false;
+      }
     }
   }
 
   return paperCount < 4;
 }
 
-long part1(const std::vector<std::string>& grid) {
-  long canMove{};
+long part1(std::vector<std::string>& grid) {
   auto X{grid.size()}, Y{grid[0].size()};
+  long canMove{};
 
-  for (auto i = 0; i < X; i++) {
-    for (auto j = 0; j < Y; j++) {
-      // Check if the cell can be accessed.
-      if (grid[i][j] == PAPER && canAccess(grid, i, j)) {
-        canMove++;
+  while (true) {
+    std::unordered_set<std::pair<size_t, size_t>, pairHash> toRemove;
+
+    for (auto i = 0; i < X; i++) {
+      for (auto j = 0; j < Y; j++) {
+        // Check if the cell can be accessed.
+        if (grid[i][j] == PAPER && canAccess(grid, i, j)) {
+          toRemove.insert({i, j});
+        }
       }
+    }
+
+    if (toRemove.empty()) {
+      break;
+    }
+
+    for (auto& index : toRemove) {
+      grid[index.first][index.second] = EMPTY;
+      canMove++;
     }
   }
 
