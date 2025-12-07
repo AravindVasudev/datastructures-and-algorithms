@@ -27,12 +27,10 @@ long countSplits(const std::vector<std::string>& grid,
 
   auto key = loc.first * Y + loc.second;
   if (memo[key] != -1) {
-    // return memo[key];
-    return 0;
+    return memo[key];
   }
 
   if (grid[loc.first][loc.second] == '^') {
-    // std::cout << loc.first << " * " << loc.second << " = " << key << " | " << memo[key] << std::endl;
     return memo[key] = countSplits(grid, {loc.first, loc.second - 1}, memo) +
                 countSplits(grid, {loc.first, loc.second + 1}, memo) + 1;
   }
@@ -40,12 +38,25 @@ long countSplits(const std::vector<std::string>& grid,
   return memo[key] = countSplits(grid, {loc.first + 1, loc.second}, memo);
 }
 
-long countSplits(const std::vector<std::string>& grid,
-                 const std::pair<size_t, size_t>& loc) {
+std::pair<long, long> countSplits(const std::vector<std::string>& grid) {
   const auto X{grid.size()}, Y{grid[0].size()};
+  const std::pair<size_t, size_t> start{0, findStart(grid[0])};
   std::vector<long> memo(X * Y, -1);
 
-  return countSplits(grid, loc, memo);
+  // Include current timeline.
+  auto timelines = countSplits(grid, start, memo) + 1;
+
+  // Count activated splitters.
+  long splits{};
+  for (int i = 0; i < X; i++) {
+    for (int j = 0; j < Y; j++) {
+      if (grid[i][j] == '^' && memo[i * Y + j] != -1) {
+        splits++;
+      }
+    }
+  }
+
+  return {splits, timelines};
 }
 
 int main() {
@@ -61,8 +72,7 @@ int main() {
     grid.push_back(line);
   }
 
-  std::pair<size_t, size_t> start{0, findStart(grid[0])};
-
-  std::cout << "Part 1: " << countSplits(grid, start) << std::endl;
-  std::cout << "Part 2: " << "b" << std::endl;
+  const auto [splits, timelines] = countSplits(grid);
+  std::cout << "Part 1: " << splits << std::endl;
+  std::cout << "Part 2: " << timelines << std::endl;
 }
