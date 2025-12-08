@@ -32,11 +32,13 @@ inline std::ostream& operator<<(std::ostream& os, const Point& p) {
 struct UnionFind {
   std::unordered_map<Point, Point, PointHash> parent;
   std::unordered_map<Point, int, PointHash> sizes;
+  int groups{};
 
   UnionFind(const std::vector<Point>& points) {
     for (const auto& point : points) {
       parent[point] = point;
       sizes[point] = 1;
+      groups++;
     }
   }
 
@@ -64,14 +66,28 @@ struct UnionFind {
 
     parent[p2] = p1;
     sizes[p1] += sizes[p2];
+    groups--;
     return true;
   }
 
   bool isRoot(const Point& p) { return parent[p] == p; }
+
+  std::vector<int> findRootSizes() {
+    std::vector<int> rootSizes;
+    for (const auto& [k, v] : sizes) {
+      if (isRoot(k)) {
+        rootSizes.push_back(v);
+      }
+    }
+
+    std::sort(rootSizes.begin(), rootSizes.end(), std::greater<int>());
+    return rootSizes;
+  }
 };
 
-std::vector<std::pair<Point, Point>> generatePairs(
+std::vector<std::pair<Point, Point>> generateSortedPairs(
     const std::vector<Point>& junctions) {
+  // Generate pairs.
   const auto size = junctions.size();
   std::vector<std::pair<Point, Point>> pairs;
   for (int i = 0; i < size; i++) {
@@ -80,37 +96,41 @@ std::vector<std::pair<Point, Point>> generatePairs(
     }
   }
 
-  return pairs;
-}
-
-long part1(const std::vector<Point>& junctions, int connect = 1000) {
-  // Generate pairs and sort them by distance.
-  auto pairs = generatePairs(junctions);
+  // Sort them by distance.
   std::sort(pairs.begin(), pairs.end(),
             [](std::pair<Point, Point> a, std::pair<Point, Point> b) {
               return a.first.distance(a.second) < b.first.distance(b.second);
             });
 
-  // Union the shortest `connect` numbers of pairs.
+  return pairs;
+}
+
+std::pair<long, long> connect(const std::vector<Point>& junctions, int N = 1000) {
+  const auto pairs = generateSortedPairs(junctions);
   auto uf = UnionFind(junctions);
-  for (int i = 0; i < connect; i++) {
-    auto success = uf.unionSets(pairs[i].first, pairs[i].second);
-    // std::cout << pairs[i].first << " U " << pairs[i].second << " = "
-    //           << success << std::endl;
+
+  // Union the first N shortest pairs.
+  for (int i = 0; i < N; i++) {
+    uf.unionSets(pairs[i].first, pairs[i].second);
   }
 
-  // Sort the group sizes.
-  std::vector<int> sizes;
-  for (const auto& p : junctions) {
-    // Assumes there are at least 3 groups.size > 1.
-    if (uf.isRoot(p) && uf.sizes[p] > 1) {
-      sizes.push_back(uf.sizes[p]);
+  // Part-1: product of top three group sizes.
+  const auto sizes = uf.findRootSizes();
+  long p1 = sizes[0] * sizes[1] * sizes[2];
+
+  // Part-2: Continue unioning until everything is connected.
+  long p2{};
+  for (int i = N; i < pairs.size(); i++) {
+    uf.unionSets(pairs[i].first, pairs[i].second);
+
+    // All groups are combined.
+    if (uf.groups == 1) {
+      p2 = pairs[i].first.X * pairs[i].second.X;
+      break;
     }
   }
 
-  std::sort(sizes.begin(), sizes.end(), std::greater<int>());
-
-  return sizes[0] * sizes[1] * sizes[2];
+  return {p1, p2};
 }
 
 int main() {
@@ -140,6 +160,7 @@ int main() {
     junctions.push_back(p);
   }
 
-  std::cout << "Part 1: " << part1(junctions) << std::endl;
-  std::cout << "Part 2: " << "b" << std::endl;
+  const auto [p1, p2] = connect(junctions);
+  std::cout << "Part 1: " << p1 << std::endl;
+  std::cout << "Part 2: " << p2 << std::endl;
 }
