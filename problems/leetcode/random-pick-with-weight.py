@@ -1,27 +1,20 @@
 # https://leetcode.com/problems/random-pick-with-weight/
-"""
-More Efficient Approach: Alias Method <TODO>
-"""
 class Solution:
     def __init__(self, w: List[int]):
-        self.prefixSum = []
-        self.total = 0
+        for i in range(1, len(w)):
+            w[i] += w[i - 1]
 
-        for weight in w:
-            self.total += weight
-            self.prefixSum.append(self.total)
+        self.w = w
+        self.total = w[-1]
         
-
     def pickIndex(self) -> int:
-        target = self.total * random.random()
-        # return bisect.bisect_left(self.prefixSum, target)
-
-        l, r = 0, len(self.prefixSum) - 1
-        while l < r:
-            mid = (l + r) // 2
-            if target > self.prefixSum[mid]:
-                l = mid + 1
+        pick = random.randint(1, self.total)
+        start, end = 0, len(self.w)
+        while start < end:
+            mid = (start + end) // 2
+            if self.w[mid] < pick:
+                start = mid + 1
             else:
-                r = mid
+                end = mid
 
-        return l
+        return start
