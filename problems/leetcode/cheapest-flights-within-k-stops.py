@@ -25,3 +25,18 @@ class Solution:
                 heapq.heappush(queue, (cost + price, steps + 1, nei))
 
         return -1
+
+# Approach 2: Bellman Ford
+class Solution:
+    def findCheapestPrice(self, n, flights, src, dst, k):
+        # prices[i] = cheapest cost to reach node i
+        prices = [float('inf')] * n
+        prices[src] = 0
+
+        for _ in range(k + 1):  # at most k+1 edges = k stops
+            temp = prices.copy() # snapshot: only use costs from previous round
+            for fro, to, price in flights:
+                temp[to] = min(temp[to], prices[fro] + price)
+            prices = temp
+
+        return prices[dst] if prices[dst] != float('inf') else -1
